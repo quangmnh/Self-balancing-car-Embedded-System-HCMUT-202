@@ -6,4 +6,4 @@
 
 - Hardware design as stl files, for 3d printed.
 - PCB design using KiCAD
-- Initial code for programming the 
+- Initial code for programming the develop[ment board
