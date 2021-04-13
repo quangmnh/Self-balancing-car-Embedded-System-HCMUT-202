@@ -17,6 +17,10 @@ https://gitlab.com/kloppertje/balancingrobot
   + Body balancing factor (Applied mechanics lul)
 - PCB order (JLCPCB maybe)
 
+# Expenditure
+
+https://docs.google.com/spreadsheets/d/1sYImMAOnU2ea2EhUiEneGWEZ3-_E23mFMH0feFGn73Y/edit?ts=607518ca#gid=1386834576
+
 # Contents
 
 
