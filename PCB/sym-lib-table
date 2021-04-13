@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name myLib)(type Legacy)(uri C:/Users/klopw/OneDrive/Documenten/KiCad/PendulumRobot/pendulumRobotModule/lib_sch/myLib.lib)(options "")(descr ""))
+)
