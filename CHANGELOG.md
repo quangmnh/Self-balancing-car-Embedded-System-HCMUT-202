@@ -1,12 +1,9 @@
 
 
-## [0.0.1] - 2014-05-31
+## [0.0.1] - 2021-04-13
 
 ### Added
 
-- This CHANGELOG file to hopefully serve as an evolving example of a
-  standardized open source project CHANGELOG.
-- CNAME file to enable GitHub Pages custom domain
-- README now contains answers to common questions about CHANGELOGs
-- Good examples and basic guidelines, including proper date formatting.
-- Counter-examples: "What makes unicorns cry?"
+- Hardware design as stl files, for 3d printed.
+- PCB design using KiCAD
+- Initial code for programming the 
