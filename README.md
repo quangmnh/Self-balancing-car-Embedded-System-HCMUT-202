@@ -8,10 +8,13 @@ https://gitlab.com/kloppertje/balancingrobot
 
 ## Week 15
 
-- Hardware design as stl files, for 3d printed.
-- PCB design using KiCAD
-- Initial code for programming the 
-
+- Prototyping some body part for experiment.
+- Enlisting full electrical components with their price tag.
+- Initial calculation
+  + Torque
+  + Power consumption
+  + MPU-6050 returned value processing  
+- PCB order (JLCPCB maybe)
 
 # Contents
 
