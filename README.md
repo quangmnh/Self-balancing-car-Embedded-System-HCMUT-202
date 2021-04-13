@@ -14,6 +14,7 @@ https://gitlab.com/kloppertje/balancingrobot
   + Torque
   + Power consumption
   + MPU-6050 returned value processing  
+  + Body balancing factor (Applied mechanics lul)
 - PCB order (JLCPCB maybe)
 
 # Contents
