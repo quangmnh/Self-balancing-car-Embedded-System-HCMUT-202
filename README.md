@@ -15,6 +15,7 @@ https://gitlab.com/kloppertje/balancingrobot
   + Power consumption
   + MPU-6050 returned value processing  
   + Body balancing factor (Applied mechanics lul)
+- Re-design some body part.
 - PCB order (JLCPCB maybe)
 
 # Expenditure
