@@ -1,0 +1,22 @@
+\documentclass[tikz,table,border=2mm]{standalone}
+\usepackage{PTSansNarrow}
+\usepackage[T1]{fontenc}
+\usepackage{array,tabularx}
+\usepackage[most]{tcolorbox}
+
+\begin{document}
+
+\rowcolors{1}{black!30}{white}
+\begin{tcolorbox}[enhanced, notitle, clip upper, fontupper=\sffamily,%
+    tabularx={>{\cellcolor[gray]{.5}\color{white}}r%
+              >{\centering\arraybackslash}X%
+              >{\centering\arraybackslash}X}]
+Aspect  & NodeMCU wroom     & ESP32 wrover \\
+Size     & 25.4*48.26*3mm( 0.2mm ) & 18.00±0.10)×(31.40±0.10)×(3.30±0.10) \\
+Interface       & FC-4                               & PCIe x4 \\
+Drive Units     & 150$\times$15 RPM disks            & 2$\times$80gig\\
+Data Protection & Mirroring                          & Mirroring\\
+Power           & 33.372 kWh/yr                      & 114 kWh/yr\\
+SPC-1 I0PS      & 24.998                             & 86.127
+\end{tcolorbox}
+\end{document}
