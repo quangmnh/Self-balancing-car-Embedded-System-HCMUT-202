@@ -18,7 +18,7 @@ https://gitlab.com/kloppertje/balancingrobot
 - Re-design some body part.
 - PCB order (JLCPCB maybe)
 
-# Expenditure
+# Expenditure and Notes
 
 https://docs.google.com/spreadsheets/d/1sYImMAOnU2ea2EhUiEneGWEZ3-_E23mFMH0feFGn73Y/edit?ts=607518ca#gid=1386834576
 
