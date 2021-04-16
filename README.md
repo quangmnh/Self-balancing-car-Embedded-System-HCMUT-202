@@ -9,7 +9,8 @@ https://gitlab.com/kloppertje/balancingrobot
 ## Week 15
 
 - Prototyping some body part for experiment.
-- Enlisting full electrical components with their price tag.
+- ~~Enlisting full electrical components with their price tag.~~
+- ~~Buy the electrical components~~
 - Initial calculation
   + Torque
   + Power consumption
@@ -18,7 +19,7 @@ https://gitlab.com/kloppertje/balancingrobot
 - Re-design some body part.
 - PCB order (JLCPCB maybe)
 
-# Expenditure
+# Expenditure and Notes
 
 https://docs.google.com/spreadsheets/d/1sYImMAOnU2ea2EhUiEneGWEZ3-_E23mFMH0feFGn73Y/edit?ts=607518ca#gid=1386834576
 

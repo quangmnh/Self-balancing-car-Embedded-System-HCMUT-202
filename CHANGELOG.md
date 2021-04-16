@@ -1,4 +1,9 @@
 
+## [0.0.2] - 2021-04-15
+
+### Added
+
+- Analysis folder initiated, comparison of ESP MCUs.
 
 ## [0.0.1] - 2021-04-13
 
