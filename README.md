@@ -6,18 +6,29 @@ https://gitlab.com/kloppertje/balancingrobot
 
 # Weekly Plan
 
+## Week 16
+
+- Calculation
+  + Torque
+  + MPU-6050 returned value processing  
+  + Body balancing factor (Applied mechanics lul)
+- Sttat machine
+- Re-design some body part.
+- Get PCB and assemble all parts 
+- Initiate the report.
+
 ## Week 15
 
-- Prototyping some body part for experiment.
+- ~~Prototyping some body part for experiment.~~
 - ~~Enlisting full electrical components with their price tag.~~
 - ~~Buy the electrical components~~
 - Initial calculation
   + Torque
-  + Power consumption
+  + ~~Power consumption~~
   + MPU-6050 returned value processing  
   + Body balancing factor (Applied mechanics lul)
 - Re-design some body part.
-- PCB order (JLCPCB maybe)
+- ~~PCB order (JLCPCB maybe)~~
 
 # Expenditure and Notes
 
