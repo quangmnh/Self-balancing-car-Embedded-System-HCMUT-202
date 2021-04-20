@@ -593,7 +593,7 @@ void loop() {
       k = 0;
 
       if (wsServer.connectedClients(0)>0 && plot.enable) {
-        union {
+        union plotDat{
           struct {
             uint8_t cmd = 255;
             uint8_t fill1;
@@ -602,6 +602,8 @@ void loop() {
             float f[13];
           };
           uint8_t b[56];
+          plotDat(){}
+          ~plotDat(){}
         } plotData;
 
         plotData.f[0] = micros()/1000000.0;
@@ -860,7 +862,6 @@ void readSensor() {
   float deltaGyroAngle;
 
   imu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-
   // accAngle = atan2f((float) ax, (float) az) * 180.0/M_PI;
   // deltaGyroAngle = -((float)((gy - gyroOffset[1])) / GYRO_SENSITIVITY) * dT * gyroGain;
     accAngle = atan2f((float) ay, (float) az) * 180.0/M_PI - angleOffset;
