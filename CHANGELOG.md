@@ -1,6 +1,11 @@
 ## [0.0.3] - 2021-04-16
 
 ### Added
+- Power and performance analysis (to be updated). 
+
+## [0.0.3] - 2021-04-16
+
+### Added
 
 - PCB gerber files for PCB order.
 - x3g for printing body part.
