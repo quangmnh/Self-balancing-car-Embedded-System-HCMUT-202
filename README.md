@@ -7,22 +7,22 @@ https://gitlab.com/kloppertje/balancingrobot
 # Weekly Plan
 
 ## Week 19
-- Creating report
-- Modelling the system
-- Assemble the parts (Only the capacitor left)
-~~- Additional hardware aqacquisition~~
-- Porting it to the hardware.
+- [x] Creating report
+- [x] Modelling the system
+- [ ] Assemble the parts (Only the capacitor left)
+- [x] Additional hardware acquisition
+- [ ] Porting it to the hardware.
 
 ## Week 16
 
-- Calculation
+- [ ] Calculation
   + Torque
   + MPU-6050 returned value processing  
   + Body balancing factor (Applied mechanics lul)
-- Sttat machine
-- Re-design some body part.
-- Get PCB and assemble all parts 
-- Initiate the report.
+- [x] Sttat machine
+- [ ] Re-design some body part.
+- [ ] Get PCB and assemble all parts 
+- [x] Initiate the report.
 
 ## Week 15
 
