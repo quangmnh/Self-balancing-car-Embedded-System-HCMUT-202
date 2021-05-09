@@ -1,3 +1,7 @@
+## [0.0.4] - 2021-05-09
+### Updated 
+- The `main.c` on the `M_PI` constant and the union typedef
+
 ## [0.0.3] - 2021-04-20
 
 ### Added
