@@ -1,3 +1,11 @@
+## [0.0.5] - 2021-05-09
+### Added
+- Flowchart of the system, namely `flowchart_selfbalancing.pdf`
+- State machine of the system, namely `state_machine_selfbalancing.pdf`
+### Updated 
+- The `main.c`, adding state machine and grouping commands into functions
+- The CHANGELOG ofc xD
+
 ## [0.0.4] - 2021-05-09
 ### Updated 
 - The `main.c` on the `M_PI` constant and the union typedef
