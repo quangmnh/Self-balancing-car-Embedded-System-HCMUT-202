@@ -4,10 +4,14 @@ We are making a Self-balancing robot taking inspiration from Wouter Klop's proje
 
 https://gitlab.com/kloppertje/balancingrobot
 
+Report:
+
+https://www.overleaf.com/project/60979d68228ff94e5ad1fe6f
+
 # Weekly Plan
 
 ## Week 19
-- [x] Creating report
+- [x] Creating report 
 - [x] Modelling the system
 - [ ] Assemble the parts (Only the capacitor left)
 - [x] Additional hardware acquisition
