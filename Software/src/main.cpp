@@ -33,6 +33,11 @@ Also, you have to publish all modifications.
 // #include <par.h>
 #include <Preferences.h>  // for storing settings
 
+// Define parameter
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 // ----- Input method
 
 // Driving behaviour
@@ -593,7 +598,7 @@ void loop() {
       k = 0;
 
       if (wsServer.connectedClients(0)>0 && plot.enable) {
-        union plotDat{
+        union plotData{
           struct {
             uint8_t cmd = 255;
             uint8_t fill1;
@@ -602,8 +607,8 @@ void loop() {
             float f[13];
           };
           uint8_t b[56];
-          plotDat(){}
-          ~plotDat(){}
+          plotData(){}  // Explicit constructor definition
+          ~plotData(){}; // Explicit destructor definition
         } plotData;
 
         plotData.f[0] = micros()/1000000.0;
