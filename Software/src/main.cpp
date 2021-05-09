@@ -13,7 +13,6 @@ This basically means: if you use my code, acknowledge it.
 Also, you have to publish all modifications.
 
 */
-
 #include <Arduino.h>
 #include <FlySkyIBus.h>
 #include <WiFi.h>
@@ -35,9 +34,13 @@ Also, you have to publish all modifications.
 
 // Define parameter
 #ifndef M_PI
-    #define M_PI 3.14159265358979323846
+  #define M_PI 3.14159265358979323846
 #endif
 
+// Define state variable
+#define RUNNING 1
+#define STANDBY 0
+bool state = STANDBY;
 // ----- Input method
 
 // Driving behaviour
@@ -272,7 +275,7 @@ void setup() {
   motLeft.microStep = microStep;
   motRight.microStep = microStep;
 
-  // SPIFFS setup
+  // SPIFFS setup (to flash the board ota)
   if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
     Serial.println("SPIFFS mount failed");
     return;
@@ -436,7 +439,178 @@ float mapfloat(float x, float in_min, float in_max, float out_min, float out_max
  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+// Define variable for the process
+static unsigned long tLast = 0;
+float pidAngleOutput = 0;
+float avgMotSpeed;
+float steer = 0;
+static float avgSteer;
+static float avgSpeed;
+static boolean enableControl = 0;
+static float avgMotSpeedSum = 0;
+int32_t avgMotStep;
+float pidPosOutput = 0, pidSpeedOutput = 0;
+static uint8_t k = 0;
+static float avgBatteryVoltage = 0;
+static uint32_t lastInputTime = 0;
+uint32_t tNowMs;
+float absSpeed = 0;
+float noiseValue = 0;
+
+void running() {
+  // Read receiver inputs
+
+  #ifdef INPUT_IBUS
+    if (IBus.isActive())
+    {                                                                       // Check if receiver is active
+      speedInput = ((float)IBus.readChannel(1) - 1500) / 5.0 * speedFactor; // Normalise between -100 and 100
+      steerInput = ((float)IBus.readChannel(0) - 1500) / 5.0 * steerFactor;
+    }
+  #endif
+
+  #ifdef INPUT_PPM
+    if (rxData[1] == 0 || rxData[0] == 0)
+    { // no ppm signal (tx off || rx set to no signal in failsave || no reciever connected (use 100k pulldown))
+      speedInput = 0.0;
+      steerInput = 0.0;
+    }
+    else
+    {                                                                                                                                // normal ppm signal
+      speedInput = mapfloat((float)constrain(rxData[1], minPPM, maxPPM), (float)minPPM, (float)maxPPM, -100.0, 100.0) * speedFactor; // Normalise between -100 and 100
+      steerInput = mapfloat((float)constrain(rxData[0], minPPM, maxPPM), (float)minPPM, (float)maxPPM, -100.0, 100.0) * steerFactor;
+    }
+  #endif
+
+    avgSpeed = speedFilterConstant * avgSpeed + (1 - speedFilterConstant) * speedInput / 5.0;
+    avgSteer = steerFilterConstant * avgSteer + (1 - steerFilterConstant) * steerInput;
+    // uint8_t lastControlMode = controlMode;
+    // controlMode = (2000-IBus.readChannel(5))/450;
+
+    if (abs(avgSpeed) < 0.2)
+    {
+      // speedInput = 0;
+    }
+    else
+    {
+      lastInputTime = tNowMs;
+      if (controlMode == 1)
+      {
+        controlMode = 2;
+        motLeft.setStep(0);
+        motRight.setStep(0);
+        pidSpeed.reset();
+      }
+    }
+
+    steer = avgSteer;
+    // if (abs(avgSteer)>1) {
+    //   steer = avgSteer * (1 - abs(avgSpeed)/150.0);
+    // } else {
+    //   steer = 0;
+    // }
+
+    // }
+
+    if (tNowMs - lastInputTime > 2000 && controlMode == 2)
+    {
+      controlMode = 1;
+      motLeft.setStep(0);
+      motRight.setStep(0);
+      pidPos.reset();
+    }
+
+    if (controlMode == 0)
+    {
+      pidAngle.setpoint = avgSpeed * 2;
+    }
+    else if (controlMode == 1)
+    {
+      avgMotStep = (motLeft.getStep() + motRight.getStep()) / 2;
+      pidPos.setpoint = avgSpeed;
+      pidPos.input = -((float)avgMotStep) / 1000.0;
+      pidPosOutput = pidPos.calculate();
+      pidAngle.setpoint = pidPosOutput;
+    }
+    else if (controlMode == 2)
+    {
+      pidSpeed.setpoint = avgSpeed;
+      pidSpeed.input = -avgMotSpeedSum / 100.0;
+      pidSpeedOutput = pidSpeed.calculate();
+      pidAngle.setpoint = pidSpeedOutput;
+    }
+
+    // Optionally, add some noise to angle for system identification purposes
+    // if (noiseSourceEnable) {
+    //   pidAngle.input = filterAngle + noiseSourceAmplitude*((random(1000)/1000.0)-0.5);
+    // } else {
+    pidAngle.input = filterAngle;
+    // }
+
+    pidAngleOutput = pidAngle.calculate();
+
+    if (noiseSourceEnable)
+    {
+      noiseValue = noiseSourceAmplitude * ((random(1000) / 1000.0) - 0.5);
+      pidAngleOutput += noiseValue;
+    }
+
+    avgMotSpeedSum += pidAngleOutput / 2;
+    if (avgMotSpeedSum > maxStepSpeed)
+    {
+      avgMotSpeedSum = maxStepSpeed;
+    }
+    else if (avgMotSpeedSum < -maxStepSpeed)
+    {
+      avgMotSpeedSum = -maxStepSpeed;
+    }
+    avgMotSpeed = avgMotSpeedSum;
+    motLeft.speed = avgMotSpeed + steer;
+    motRight.speed = avgMotSpeed - steer;
+
+    // Switch microstepping
+    absSpeed = abs(avgMotSpeed);
+    uint8_t lastMicroStep = microStep;
+
+    if (absSpeed > (150 * 32 / microStep) && microStep > 1)
+      microStep /= 2;
+    if (absSpeed < (130 * 32 / microStep) && microStep < 32)
+      microStep *= 2;
+
+    if (microStep != lastMicroStep)
+    {
+      motLeft.microStep = microStep;
+      motRight.microStep = microStep;
+      setMicroStep(microStep);
+    }
+
+    // Disable control if robot is almost horizontal. Re-enable if upright.
+    if (abs(filterAngle) > 70)
+    {
+      enableControl = 0;
+      motLeft.speed = 0;
+      motRight.speed = 0;
+      digitalWrite(motEnablePin, 1); // Inverted action on enable pin
+    }
+}
+
+void reset() {
+  if (abs(filterAngle) < 0.5)
+  { // (re-)enable and reset stuff
+    enableControl = 1;
+    controlMode = 1;
+    avgMotSpeedSum = 0;
+    motLeft.setStep(0);
+    motRight.setStep(0);
+    pidAngle.reset();
+    pidPos.reset();
+    pidSpeed.reset();
+    digitalWrite(motEnablePin, 0); // Inverted action on enable pin
+    // delay(1);
+  }
+}
+
 void loop() {
+/*
   static unsigned long tLast = 0;
   float pidAngleOutput = 0;
   float avgMotSpeed;
@@ -453,12 +627,33 @@ void loop() {
   uint32_t tNowMs;
   float absSpeed = 0;
   float noiseValue = 0;
+*/
 
   unsigned long tNow = micros();
   tNowMs = millis();
 
+  // checking the system every 0.005s
   if (tNow-tLast > dT_MICROSECONDS) {
+    // read the sensor then changing the state
     readSensor();
+    switch (enableControl) {
+      case 1:
+        state = RUNNING;
+        break;
+      case 0:
+        state = STANDBY;
+        break;
+    }
+    switch (state) {
+      case RUNNING:
+        running();
+        break;
+      case STANDBY:
+        reset();
+        break;
+    }
+      
+/*
     if (enableControl) {
       // Read receiver inputs
 
@@ -586,6 +781,7 @@ void loop() {
         // delay(1);
       }
     }
+*/
 
     motLeft.update();
     motRight.update();
@@ -593,7 +789,8 @@ void loop() {
     // updateStepper(&motRight);
 
     avgBatteryVoltage = avgBatteryVoltage*0.995 + analogRead(battVoltagePin)*0.0293*0.005;
-
+    
+    // plotting the data
     if (k==plot.prescaler) {
       k = 0;
 
@@ -607,7 +804,7 @@ void loop() {
             float f[13];
           };
           uint8_t b[56];
-          plotData(){}  // Explicit constructor definition
+          plotData() {}  // Explicit constructor definition
           ~plotData(){}; // Explicit destructor definition
         } plotData;
 
@@ -647,7 +844,7 @@ void loop() {
       // Run other tasks
     ArduinoOTA.handle();
     #ifdef INPUT_IBUS
-    IBus.loop();
+      IBus.loop();
     #endif
     wsServer.loop();
 
@@ -867,6 +1064,7 @@ void readSensor() {
   float deltaGyroAngle;
 
   imu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
   // accAngle = atan2f((float) ax, (float) az) * 180.0/M_PI;
   // deltaGyroAngle = -((float)((gy - gyroOffset[1])) / GYRO_SENSITIVITY) * dT * gyroGain;
     accAngle = atan2f((float) ay, (float) az) * 180.0/M_PI - angleOffset;
