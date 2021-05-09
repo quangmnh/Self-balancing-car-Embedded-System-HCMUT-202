@@ -6,6 +6,13 @@ https://gitlab.com/kloppertje/balancingrobot
 
 # Weekly Plan
 
+## Week 19
+- Creating report
+- Modelling the system
+- Assemble the parts (Only the capacitor left)
+~~- Additional hardware aqacquisition~~
+- Porting it to the hardware.
+
 ## Week 16
 
 - Calculation
