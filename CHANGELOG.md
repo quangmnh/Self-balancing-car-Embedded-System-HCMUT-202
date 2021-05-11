@@ -1,3 +1,9 @@
+## [0.0.6] - 2021-05-11
+## Updated
+- First time assembled the hardware, still got the wires left
+- Flashed the new 30-pin ESP32
+- Tried the wifi hotspot and configuaration menu
+
 ## [0.0.5] - 2021-05-09
 ### Added
 - Flowchart of the system, namely `flowchart_selfbalancing.pdf`
