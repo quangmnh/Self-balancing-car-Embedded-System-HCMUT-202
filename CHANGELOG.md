@@ -1,5 +1,17 @@
+## [0.0.3] - 2021-05-15
+
+### Added
+- Test project for individual motor test (seem to be not working at 11.1 volts input), at
+> test/Motor
+- mirrored stl of frameA1_mirror.stl at 
+> 3dpart/frame
+- GCODE files for printing at ABC Solutions, at
+> 3dpart/GCODE
+
+
 ## [0.0.3] - 2021-04-20
 
+### Nice
 ### Added
 - Power and performance analysis (to be updated). 
 
