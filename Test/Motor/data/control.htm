@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="target-densitydpi=device-dpi; user-scalable=no;" />
+
+    
+<script>
+
+window.onload = function () { initElements() };
+
+var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
+connection.binaryType = 'arraybuffer';
+connection.onopen = function () {  
+connection.send('Connect ' + new Date()); 
+}; 
+connection.onerror = function (error) {    
+	console.log('WebSocket Error ', error);
+};
+connection.onmessage = function (e) {  
+  if (typeof(e.data)=='string') { // Text frame
+		console.log('Server: ', e.data);
+  } else { // Binary frame
+    var dv = new DataView(e.data);
+    var grp = dv.getUint8(0);
+    var cmd = dv.getUint8(1);
+    var val = dv.getFloat32(2,true);
+    console.log(grp + ' ' + cmd + ' ' + val);
+    parseValue(grp,cmd,val);
+  }
+};
+
+function sendCommand(grp, cmd, val) {
+  var buf = new ArrayBuffer(6);
+  var dv = new DataView(buf);
+  dv.setUint8(0,grp);
+  dv.setUint8(1,cmd);
+  dv.setFloat32(2,val,true);
+  // console.log(buf);
+  connection.send(buf);
+}
+
+function resetValue(e,grp,cmd) {
+  e.value = 0;
+  sendCommand(grp,cmd,0);
+}
+</script>
+<style>
+html {
+  touch-action: manipulation; /* Improves responsiveness on touch device */
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+   /*transform: rotate(270deg); */
+  width: 350px;
+  height: 100px;
+  margin: 150px 0 0 0;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 80px;
+  /*cursor: pointer;*/
+  /*box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;*/
+  background: #3071a9;
+  /*border-radius: 1.3px;*/
+  /*border: 0.2px solid #010101;*/
+}
+input[type=range]::-webkit-slider-thumb {
+  /*box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;*/
+  border: 1px solid #000000;
+  height: 100%;
+  width: 30px;
+  border-radius: 3px;
+  background: #ffffff;
+  /*cursor: pointer;*/
+  -webkit-appearance: none;
+   /*margin-top: -14px; */
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #367ebd;
+}
+
+</style>
+</head>
+
+<body>
+<input type="range" min="-100" max="100" step="1" oninput="sendCommand(100,0,this.value)"  onmouseup="resetValue(this,100,0)" ontouchend="resetValue(this,100,0)" style="transform:rotate(270deg);">
+<input type="range" min="-100" max="100" step="1" oninput="sendCommand(100,1,this.value)" onmouseup="resetValue(this,100,1)"  ontouchend="resetValue(this,100,1)"><br />
+<label id="lbl">a</label>
+
+</body>

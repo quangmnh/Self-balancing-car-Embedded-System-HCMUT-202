@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script>
+
+window.onload = function () { initElements() };
+
+var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
+connection.binaryType = 'arraybuffer';
+connection.onopen = function () {  
+	<!-- connection.send('Connect ' + new Date());  -->
+}; 
+connection.onerror = function (error) {    
+	console.log('WebSocket Error ', error);
+};
+connection.onmessage = function (e) {  
+  if (typeof(e.data)=='string') { // Text frame
+		console.log('Server: ', e.data);
+		// if (e.data[0]=='c') {
+		//   cmd = e.data.substr(0,3);
+		//   val = e.data.substr(3);
+		// } else if (e.data[0]=='w') {
+		//   var str = e.data.substr(1);
+		//   parseWifiCommand(str);
+		// } else {
+		//   cmd = e.data.substr(0,1);
+		//   val = e.data.substr(1);
+		// }
+		// document.getElementById(cmd).value = parseFloat(val);
+  } else { // Binary frame
+    var dv = new DataView(e.data);
+    var grp = dv.getUint8(0);
+    var cmd = dv.getUint8(1);
+    var val = dv.getFloat32(2,true);
+    console.log(grp + ' ' + cmd + ' ' + val);
+    parseValue(grp,cmd,val);
+  }
+};
+
+
+function sendCommand(grp, cmd, val) {
+  var buf = new ArrayBuffer(6);
+  var dv = new DataView(buf);
+  dv.setUint8(0,grp);
+  dv.setUint8(1,cmd);
+  dv.setFloat32(2,val,true);
+  // console.log(buf);
+  connection.send(buf);
+}
+
+function changeValue(e,dir) {
+  d = e.parentNode;
+  s = d.getElementsByClassName("slider")[0];
+  l = d.getElementsByClassName("valueLabel")[0];
+  s.value = Number(s.value) + (dir*s.step);
+  l.innerHTML = Number(s.value).toFixed(3);
+  var grp = d.getAttribute('group');
+  var cmd = d.getAttribute('command');
+  sendCommand(grp, cmd, s.value);
+}
+
+function setValue(d,val) {
+  s = d.getElementsByClassName("slider")[0];
+  l = d.getElementsByClassName("valueLabel")[0];
+  s.value = val;
+  l.innerHTML = Number(val).toFixed(3);
+}
+
+function parseValue(grp, cmd, val) {
+  d = document.getElementsByClassName("sliderGroup");
+  for (var i=0; i<d.length; i++) {
+    if ((d[i].getAttribute('group')==grp) && ((d[i].getAttribute('command')==cmd))) {
+      setValue(d[i], val);
+      return;
+    } 
+  }
+  
+  d = document.getElementsByClassName("radioGroup");
+  for (var i=0; i<d.length; i++) {
+    if ((d[i].getAttribute('group')==grp) && ((d[i].getAttribute('command')==cmd))) {
+      var optionValues = d[i].getAttribute('values').split(',');
+      var rList = d[i].getElementsByClassName("radio");
+      for (var i=0; i<rList.length; i++) {
+        if (rList[i].value==val) {
+          rList[i].checked = true;
+          return;
+        }
+        
+      }
+    } 
+  }
+}
+
+function initElements() {
+  var d = document.getElementsByClassName("sliderPH");
+  
+  for (var i=d.length-1; i>=0; i--) {
+    var name = d[i].getAttribute('lbl');
+    var min  = d[i].getAttribute('min');
+    var max  = d[i].getAttribute('max');
+    var stp  = d[i].getAttribute('step');
+    createSlider(d[i], name, min, max, stp);
+  }
+  
+  var d = document.getElementsByClassName("radioPH");
+  for (var i=d.length-1; i>=0; i--) {
+    var name = d[i].getAttribute('lbl');
+    var grp = d[i].getAttribute('group');
+    var cmd = d[i].getAttribute('command');
+    var optionNames = d[i].getAttribute('names').split(',');
+    var optionValues = d[i].getAttribute('values').split(',');
+    createRadio(d[i], name, grp, cmd, optionNames, optionValues);
+  }
+  
+}
+
+function createRadio(div, name, grp, cmd, optionNames, optionValues) {
+  div.className = "radioGroup";
+  
+  var lbl = document.createElement("label");
+  lbl.innerHTML = name;
+  lbl.className = "nameLabel";
+  div.appendChild(lbl);
+  
+  for (var i=0; i<optionNames.length; i++) {
+    var r = document.createElement("INPUT");
+    r.setAttribute("type", "radio");
+    r.value = optionValues[i];
+    r.name='x';
+    r.className = 'radio';
+    r.onchange = function () {sendCommand(grp, cmd, this.value)};
+    div.appendChild(r);
+    // div.appendChild(l);
+    div.appendChild(document.createTextNode(optionNames[i]));
+    // div.appendChild(document.createTextNode('hoi'));
+  }
+
+}
+
+function createSlider(div, name, min, max, stp) {
+  div.className = "sliderGroup";
+    
+  var lbl = document.createElement("label");
+  lbl.innerHTML = name;
+  lbl.className = "nameLabel";
+  div.appendChild(lbl);
+  
+  var btn = document.createElement("button");       
+  btn.className = "btnAdj";
+  btn.innerHTML = '-';
+  btn.onclick =  function () {changeValue(btn, -1)};
+  div.appendChild(btn);    
+  
+  var slider = document.createElement('input');
+  slider.id = "volume";
+  slider.type = 'range';
+  slider.className = "slider";
+  slider.min = min;
+  slider.max = max;
+  slider.step = stp;
+  slider.value = (max-min)/2;
+  slider.oninput =  function () {changeValue(btn, 0)};
+  div.appendChild(slider); 
+  
+  var btn = document.createElement("button");       
+  var t = document.createTextNode("+");     
+  btn.className = "btnAdj";
+  btn.appendChild(t);     
+  btn.onclick =  function () {changeValue(btn, 1)};                          
+  div.appendChild(btn);   
+  
+  var lbl = document.createElement("label");
+  lbl.innerHTML = slider.value;
+  lbl.className = "valueLabel";
+  div.appendChild(lbl);
+}
+</script>
+</head>
+
+<body>
+<form>
+  <button type="button" onclick="sendCommand(0,253,1.245)">Send</button>
+  <button type="button" onclick="sendCommand(0,254,1.245)">Read</button>
+  <button type="button" onclick="sendCommand(0,255,0)">Write</button>
+</form>
+
+Angle
+<div class="sliderPH" lbl="P" group="0" command="0" min="0.1" max="3" step="0.01"></div>
+<div class="sliderPH" lbl="I" group="0" command="1" min="0" max="5" step="0.01"></div>
+<div class="sliderPH" lbl="D" group="0" command="2" min="0" max="0.3" step="0.001"></div>
+<div class="sliderPH" lbl="N" group="0" command="3" min="2" max="50" step="0.1"></div>
+<div class="sliderPH" lbl="R" group="0" command="4" min="0" max="1" step="0.01"></div>
+<div class="sliderPH" lbl="min" group="0" command="5" min="-50" max="0" step="0.1"></div>
+<div class="sliderPH" lbl="max" group="0" command="6" min="0" max="50" step="0.1"></div>
+<div class="radioPH"  lbl="type" group="0" command="7" names="P,PI,PD,PID" values="0,1,2,3"></div>
+
+Pos
+<div class="sliderPH" lbl="P" group="0" command="8" min="0.1" max="3" step="0.01"></div>
+<div class="sliderPH" lbl="I" group="0" command="9" min="0" max="1" step="0.01"></div>
+<div class="sliderPH" lbl="D" group="0" command="10" min="0" max="5" step="0.01"></div>
+<div class="sliderPH" lbl="N" group="0" command="11" min="2" max="50" step="0.1"></div>
+<div class="sliderPH" lbl="R" group="0" command="12" min="0" max="1" step="0.01"></div>
+<div class="sliderPH" lbl="min" group="0" command="13" min="-50" max="0" step="0.1"></div>
+<div class="sliderPH" lbl="max" group="0" command="14" min="0" max="50" step="0.1"></div>
+<div class="radioPH"  lbl="type" group="0" command="15" names="P,PI,PD,PID" values="0,1,2,3"></div>
+
+Speed
+<div class="sliderPH" lbl="P" group="0" command="16" min="0.1" max="10" step="0.01"></div>
+<div class="sliderPH" lbl="I" group="0" command="17" min="0" max="5" step="0.01"></div>
+<div class="sliderPH" lbl="D" group="0" command="18" min="0" max="5" step="0.01"></div>
+<div class="sliderPH" lbl="N" group="0" command="19" min="2" max="50" step="0.1"></div>
+<div class="sliderPH" lbl="R" group="0" command="20" min="0" max="1" step="0.01"></div>
+<div class="sliderPH" lbl="min" group="0" command="21" min="-50" max="0" step="0.1"></div>
+<div class="sliderPH" lbl="max" group="0" command="22" min="0" max="50" step="0.1"></div>
+<div class="radioPH"  lbl="type" group="0" command="23" names="P,PI,PD,PID" values="0,1,2,3"></div>
+</body>
