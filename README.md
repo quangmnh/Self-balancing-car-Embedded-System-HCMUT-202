@@ -9,6 +9,9 @@ Report:
 https://www.overleaf.com/project/60979d68228ff94e5ad1fe6f
 
 # Weekly Plan
+## Week 20 
+- [ ] Add the detail design
+- [ ] FIND WAYS TO EVALUATE THE SYSTEMS (Calculate the value, the max velocity of the bot, the max angle of the slope)
 
 ## Week 19
 - [x] Creating report 
