@@ -1,4 +1,4 @@
-## [0.0.3] - 2021-05-15
+## [0.0.5] - 2021-05-15
 
 ### Added
 - Test project for individual motor test (seem to be not working at 11.1 volts input), at
@@ -9,7 +9,7 @@
 > 3dpart/GCODE
 
 
-## [0.0.3] - 2021-04-20
+## [0.0.4] - 2021-04-20
 
 ### Nice
 ### Added
